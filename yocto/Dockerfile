@@ -20,3 +20,5 @@ WORKDIR /home/${USERNAME}
 RUN mkdir -p ~/work
 
 RUN git clone -b honister git://git.yoctoproject.org/poky
+
+COPY .bashrc /home/${USERNAME}/
