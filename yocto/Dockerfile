@@ -1,11 +1,10 @@
-FROM ubuntu:20.04
+FROM ub-dev
 
 ARG USERNAME=tom
 ARG PUID=1000
 ARG PGID=1000
 
-ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=Europe/Berlin
+USER root
 
 RUN apt-get update && apt-get install -y gawk wget git-core diffstat unzip \
             texinfo gcc-multilib build-essential chrpath socat cpio python \
@@ -14,15 +13,6 @@ RUN apt-get update && apt-get install -y gawk wget git-core diffstat unzip \
             liblz4-tool zstd \
             vim bash-completion screen
 
-RUN groupadd -g ${PGID} ${USERNAME} \
-            && useradd -u ${PUID} -g ${USERNAME} -d /home/${USERNAME} ${USERNAME} \
-            && mkdir /home/${USERNAME} \
-            && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
-
-RUN locale-gen en_US.UTF-8
-
-ENV LANG en_US.UTF-8
-
 USER ${USERNAME}
 
 WORKDIR /home/${USERNAME}
@@ -30,51 +20,3 @@ WORKDIR /home/${USERNAME}
 RUN mkdir -p ~/work
 
 RUN git clone -b honister git://git.yoctoproject.org/poky
-
-# Setup vim
-
-USER root
-
-RUN apt-get install -y vim git build-essential cmake vim-nox python3-dev \
-            mono-complete golang nodejs default-jdk npm
-
-USER ${USERNAME}
-
-WORKDIR /home/${USERNAME}
-
-RUN mkdir -p /home/${USERNAME}/.vim/pack/${USERNAME}
-RUN mkdir -p /home/${USERNAME}/.vim/pack/${USERNAME}/start
-RUN mkdir -p /home/${USERNAME}/.vim/pack/${USERNAME}/opt
-
-WORKDIR /home/${USERNAME}/.vim/pack/${USERNAME}/start
-
-RUN git clone https://github.com/rafi/awesome-vim-colorschemes.git
-RUN git clone https://github.com/cdelledonne/vim-cmake.git
-RUN git clone https://github.com/preservim/nerdtree.git
-RUN git clone https://github.com/dyng/ctrlsf.vim.git
-RUN git clone https://github.com/preservim/tagbar.git
-RUN git clone https://github.com/ycm-core/YouCompleteMe.git
-RUN git clone https://github.com/dmerejkowsky/vim-ale.git
-RUN git clone https://github.com/airblade/vim-gitgutter
-RUN git clone https://github.com/tpope/vim-sensible.git
-RUN git clone https://github.com/jiangmiao/auto-pairs.git
-RUN git clone https://github.com/ludovicchabant/vim-gutentags.git
-RUN git clone https://github.com/vim-airline/vim-airline.git
-RUN git clone https://github.com/vim-airline/vim-airline-themes.git
-RUN git clone https://github.com/sheerun/vim-polyglot.git
-
-WORKDIR /home/${USERNAME}/.vim/pack/${USERNAME}/start/YouCompleteMe
-
-RUN git submodule update --init --recursive
-
-RUN python3 install.py --all
-
-# Copy configs
-
-COPY .bashrc /home/${USERNAME}/
-
-COPY .vimrc /home/${USERNAME}/
-
-COPY init.sh /home/${USERNAME}/
-
-WORKDIR /home/${USERNAME}/work
