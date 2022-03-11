@@ -4,15 +4,14 @@ ARG USERNAME=tom
 ARG PUID=1000
 ARG PGID=1000
 
+# Basic Ubuntu dev
+
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Berlin
 
-RUN apt-get update && apt-get install -y gawk wget git-core diffstat unzip \
-            texinfo gcc-multilib build-essential chrpath socat cpio python \
-            python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping \
-            python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev xterm locales \
-            liblz4-tool zstd \
-            vim bash-completion screen
+RUN apt-get update && apt-get install -y curl wget git unzip \
+            build-essential python3 python3-pip locales \
+            vim bash-completion screen tmux clang
 
 RUN groupadd -g ${PGID} ${USERNAME} \
             && useradd -u ${PUID} -g ${USERNAME} -d /home/${USERNAME} ${USERNAME} \
@@ -29,7 +28,25 @@ WORKDIR /home/${USERNAME}
 
 RUN mkdir -p ~/work
 
-RUN git clone -b honister git://git.yoctoproject.org/poky
+# Setup zsh
+
+USER root
+
+RUN apt-get install -y zsh curl wget python3-pygments git
+
+USER ${USERNAME}
+
+WORKDIR /home/${USERNAME}
+
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+
+WORKDIR /home/${USERNAME}/.oh-my-zsh/plugins
+
+RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting
+
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions
+
+WORKDIR /home/${USERNAME}
 
 # Setup vim
 
@@ -72,6 +89,8 @@ RUN python3 install.py --all
 # Copy configs
 
 COPY .bashrc /home/${USERNAME}/
+
+COPY .zshrc /home/${USERNAME}/
 
 COPY .vimrc /home/${USERNAME}/
 
