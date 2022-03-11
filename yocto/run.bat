@@ -1,2 +1,2 @@
-mkdir -p ./work
-docker run -it --rm -v work:/home/tom/work yocto-honister bash
+mkdir c:\work
+docker run -it --rm -v c:\work:/home/tom/work yocto-honister bash
