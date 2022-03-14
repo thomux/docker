@@ -1,5 +1,5 @@
 #!/bin/bash
 
-mkdir -p ./work
+mkdir -p ~/yocto-honister
 
-docker run -it --rm -v docker run -it --rm -v "$(pwd)"/work:/home/tom/work -v ~/.ssh:/home/tom/.ssh:ro  -v ~:/home/tom/home:ro yocto-honister bash
+docker run -it --rm -v ~/yocto-honister:/home/tom/work -v ~/.ssh:/home/tom/.ssh:ro  -v ~:/home/tom/host:ro yocto-honister bash
