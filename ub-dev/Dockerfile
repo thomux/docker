@@ -1,8 +1,8 @@
 FROM ubuntu:20.04
 
 ARG USERNAME=tom
-ARG PUID=1000
-ARG PGID=1000
+ARG PUID=1001
+ARG PGID=1001
 
 # Basic Ubuntu dev
 
@@ -86,14 +86,31 @@ RUN git submodule update --init --recursive
 
 RUN python3 install.py --all
 
+# Setup sudo
+
+USER root
+
+RUN apt-get install -y sudo
+RUN adduser ${USERNAME} sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
 # Copy configs
 
+USER root
+
 COPY .bashrc /home/${USERNAME}/
+RUN chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.bashrc
 
 COPY .zshrc /home/${USERNAME}/
+RUN chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.zshrc
 
 COPY .vimrc /home/${USERNAME}/
+RUN chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.vimrc
 
 COPY init.sh /home/${USERNAME}/
+RUN chown ${USERNAME}:${USERNAME} /home/${USERNAME}/init.sh
+RUN chmod +x /home/${USERNAME}/init.sh
+
+USER ${USERNAME}
 
 WORKDIR /home/${USERNAME}/work
